@@ -196,7 +196,13 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
       p_sender_phone: sender || null
     });
     if (error) throw error;
-    messageEl.textContent = "Kòd la resevwa pou verifikasyon manyèl. Sa pa vle di peman an deja konfime. Kenbe resi NatCash la. Apre ekip nou valide peman an, retounen sou paj sa a nan seksyon « Kòmann mwen yo » pou telechaje PDF la.";
+    if (data?.status === "verified") {
+      messageEl.textContent = "Peman an verifye otomatikman! Ou ka eseye telechaje PDF la nan seksyon « Kòmann mwen yo ».";
+    } else if (data?.status === "amount_mismatch") {
+      messageEl.textContent = "SMS la jwenn, men montan li pa koresponn ak kòmann nan. Pa soumèt yon lòt fwa; kontakte B.F.A.I sou WhatsApp.";
+    } else {
+      messageEl.textContent = "Kòd la resevwa. Sistèm nan ap tann SMS NatCash la pou verifye kòd la ak montan an. Kenbe resi a; pa peye yon dezyèm fwa.";
+    }
     const message = `Bonjou B.F.A.I, mwen soumèt kòd NatCash ${code} pou kòmann ${currentOrder.order_id}. Montan: ${formatHTG(currentOrder.amount_htg)}. Tanpri verifye li.`;
     document.getElementById("whatsapp-order").href = "https://wa.me/50941319310?text=" + encodeURIComponent(message);
   } catch (err) {
