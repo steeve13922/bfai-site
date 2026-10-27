@@ -22,7 +22,7 @@
 
     <section id="adminPanel" hidden>
       <div class="welcome"><div><h1>Jesyon B.F.A.I</h1><p>Jere pwodwi, fichye PDF ak verifikasyon NatCash.</p></div><button id="logoutBtn" class="secondary">Dekonekte</button></div>
-      <nav class="tabs"><button data-tab="products" class="active">Pwodwi</button><button data-tab="payments">Peman NatCash</button></nav>
+      <nav class="tabs"><button data-tab="products" class="active">Pwodwi</button><button data-tab="payments">Peman NatCash</button><button data-tab="orders">Kòmann peye</button></nav>
       <section id="productsTab" class="panel">
         <h2>Ajoute oswa modifye yon pwodwi</h2>
         <form id="productForm" class="formgrid">
@@ -46,6 +46,18 @@
         <button id="refreshPayments" class="secondary">Rafrechi lis la</button>
         <p id="paymentMsg" class="msg" role="status"></p>
         <div class="tablewrap"><table><thead><tr><th>Dat</th><th>Kòd tranzaksyon</th><th>Montan</th><th>Telefòn kliyan</th><th>Commande</th><th>Aksyon</th></tr></thead><tbody id="paymentsRows"><tr><td colspan="6">Ap chaje…</td></tr></tbody></table></div>
+      </section>
+      <section id="ordersTab" class="panel" hidden>
+        <h2>Kòmann ki peye</h2>
+        <p>Si yon kliyan pèdi aksè ak telechajman an (nouvo telefòn, done efase), kreye yon nouvo lyen epi voye l ba li sou WhatsApp. Ansyen lyen an sispann mache.</p>
+        <button id="refreshOrders" class="secondary">Rafrechi lis la</button>
+        <p id="ordersMsg" class="msg" role="status"></p>
+        <div id="linkBox" class="panel" hidden>
+          <strong id="linkTitle">Nouvo lyen telechajman</strong>
+          <input id="linkValue" readonly>
+          <div class="actions"><button type="button" id="copyLink">Kopye lyen an</button><a id="waLink" class="secondary" href="#" target="_blank" rel="noopener">Voye sou WhatsApp</a></div>
+        </div>
+        <div class="tablewrap"><table><thead><tr><th>Dat</th><th>Pwodwi</th><th>Kliyan</th><th>Montan</th><th>Aksyon</th></tr></thead><tbody id="ordersRows"><tr><td colspan="5">Ap chaje…</td></tr></tbody></table></div>
       </section>
     </section>
   </main>
