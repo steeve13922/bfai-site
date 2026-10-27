@@ -7,6 +7,7 @@ const loginPanel=$("loginPanel"), adminPanel=$("adminPanel");
 const say=(id,msg,error=false)=>{const e=$(id);e.textContent=msg;e.classList.toggle("error",!!error)};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let products=[];
+let paidOrders=[];
 function isAdmin(user){return user?.app_metadata?.role==="admin"}
 async function showSession(){
   const {data:{session}}=await db.auth.getSession();
@@ -25,7 +26,8 @@ $("loginForm").addEventListener("submit",async e=>{
 $("logoutBtn").onclick=async()=>{await db.auth.signOut();await showSession()};
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
-  $("productsTab").hidden=b.dataset.tab!=="products";$("paymentsTab").hidden=b.dataset.tab!=="payments";
+  $("productsTab").hidden=b.dataset.tab!=="products";$("paymentsTab").hidden=b.dataset.tab!=="payments";$("ordersTab").hidden=b.dataset.tab!=="orders";
+  if(b.dataset.tab==="orders")loadOrders();
 });
 function resetForm(){ $("productForm").reset();$("productId").value="";say("productMsg","");}
 $("resetBtn").onclick=resetForm;
@@ -85,5 +87,42 @@ async function reviewPayment(id,decision){
  say("paymentMsg",decision==="verified"?"Peman valide.":"Peman refize.");await loadPayments();
 }
 $("refreshPayments").onclick=loadPayments;
+
+// --- Kòmann peye : régénérer un lien de téléchargement ---
+async function loadOrders(){
+ const body=$("ordersRows");body.innerHTML='<tr><td colspan="5">Ap chaje…</td></tr>';
+ const {data,error}=await db.from("orders").select("id,customer_name,customer_whatsapp,amount_htg,status,created_at,products(title)").in("status",["paid","fulfilled"]).order("created_at",{ascending:false}).limit(100);
+ if(error){body.innerHTML='<tr><td colspan="5">Pa kapab chaje kòmann yo.</td></tr>';say("ordersMsg",error.message,true);return}
+ paidOrders=data||[];
+ if(!paidOrders.length){body.innerHTML='<tr><td colspan="5">Pa gen kòmann peye pou kounye a.</td></tr>';return}
+ body.innerHTML=paidOrders.map(o=>{const prod=Array.isArray(o.products)?o.products[0]:o.products;return `<tr><td>${esc(new Date(o.created_at).toLocaleString())}</td><td>${esc(prod?.title||"—")}</td><td>${esc(o.customer_name||"—")}<br><small>${esc(o.customer_whatsapp)}</small></td><td>${Number(o.amount_htg).toLocaleString()} HTG</td><td><button data-link="${o.id}">Nouvo lyen</button></td></tr>`}).join("");
+ body.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>regenerateLink(b.dataset.link,b));
+}
+async function regenerateLink(orderId,button){
+ const order=paidOrders.find(o=>o.id===orderId);if(!order)return;
+ if(!confirm("Kreye yon nouvo lyen? Ansyen lyen kliyan an ap sispann mache."))return;
+ button.disabled=true;say("ordersMsg","Ap kreye lyen an…");
+ const {data,error}=await db.rpc("bfai_admin_regenerate_download",{p_order_id:orderId});
+ button.disabled=false;
+ if(error){say("ordersMsg",error.message,true);return}
+ const base=location.origin+location.pathname.replace(/[^/]*$/,"");
+ const title=data.product_title||"PDF";
+ const link=`${base}#dl=${data.order_id}.${data.download_token}&t=${encodeURIComponent(title)}`;
+ $("linkTitle").textContent=`Nouvo lyen pou ${title} — ${order.customer_name||order.customer_whatsapp}`;
+ $("linkValue").value=link;
+ const digits=String(order.customer_whatsapp||"").replace(/\D/g,"");
+ const text=`Bonjou! Men nouvo lyen pou telechaje PDF ou a (${title}): ${link}`;
+ $("waLink").href=`https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+ $("linkBox").hidden=false;
+ say("ordersMsg","Lyen an pare. Voye l ba kliyan an.");
+ $("linkBox").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+$("copyLink").onclick=async()=>{
+ const input=$("linkValue");
+ try{await navigator.clipboard.writeText(input.value);say("ordersMsg","Lyen an kopye.")}
+ catch{input.select();say("ordersMsg","Kopye lyen an manyèlman (seleksyone l).",true)}
+};
+$("refreshOrders").onclick=loadOrders;
+
 db.auth.onAuthStateChange(()=>{setTimeout(showSession,0)});
 showSession();
