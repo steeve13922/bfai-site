@@ -7,6 +7,10 @@ const statusEl = document.getElementById("status");
 const dialog = document.getElementById("order-dialog");
 const orderForm = document.getElementById("order-form");
 const paymentPanel = document.getElementById("payment-panel");
+const myOrdersSection = document.getElementById("my-orders");
+const ordersListEl = document.getElementById("orders-list");
+const ordersMessageEl = document.getElementById("orders-message");
+const ORDERS_KEY = "bfai_orders";
 let selectedProduct = null;
 let currentOrder = null;
 
@@ -18,6 +22,65 @@ function formatHTG(value) {
 function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[ch]));
 }
+
+// --- Kòmann mwen yo : commandes gardées dans ce navigateur (avec le jeton de téléchargement) ---
+function loadSavedOrders() {
+  try {
+    const list = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+    return Array.isArray(list) ? list : [];
+  } catch (_e) {
+    return [];
+  }
+}
+function saveOrder(order) {
+  try {
+    const list = loadSavedOrders().filter(o => o.order_id !== order.order_id);
+    list.unshift(order);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(list.slice(0, 20)));
+  } catch (_e) { /* stockage indisponible : on ignore */ }
+  renderMyOrders();
+}
+function renderMyOrders() {
+  const orders = loadSavedOrders();
+  if (!orders.length) {
+    myOrdersSection.classList.add("hidden");
+    return;
+  }
+  myOrdersSection.classList.remove("hidden");
+  ordersListEl.innerHTML = "";
+  for (const o of orders) {
+    const card = document.createElement("article");
+    card.className = "product-card";
+    card.innerHTML = `<div class="product-info"><h3>${safeText(o.title)}</h3><p>${formatHTG(o.amount_htg)}<br><small>Kòmann: ${safeText(o.order_id)}</small></p><div class="product-bottom"><button class="buy-button" type="button">Telechaje PDF</button></div></div>`;
+    card.querySelector("button").addEventListener("click", (e) => downloadOrder(o, e.currentTarget));
+    ordersListEl.appendChild(card);
+  }
+}
+async function downloadOrder(order, button) {
+  const label = button.textContent;
+  button.disabled = true;
+  button.textContent = "Ap verifye…";
+  ordersMessageEl.textContent = "";
+  try {
+    const { data, error } = await db.functions.invoke("bfai-download-pdf", {
+      body: { order_id: order.order_id, download_token: order.token }
+    });
+    if (error) {
+      const status = error?.context?.status;
+      if (status === 403) throw new Error("Peman an poko verifye. Tanpri tann ekip B.F.A.I konfime li, epi eseye ankò.");
+      if (status === 404) throw new Error("PDF la poko disponib oswa kòmann nan pa jwenn. Kontakte nou sou WhatsApp.");
+      throw new Error("Nou pa t kapab prepare telechajman an. Eseye ankò pita.");
+    }
+    if (!data?.download_url) throw new Error("Lyen telechajman an pa disponib. Eseye ankò.");
+    window.location.href = data.download_url;
+  } catch (err) {
+    ordersMessageEl.textContent = err?.message || "Erè pandan telechajman an.";
+  } finally {
+    button.disabled = false;
+    button.textContent = label;
+  }
+}
+
 async function loadProducts() {
   const { data, error } = await db.from("products")
     .select("id,slug,title,description,price_htg,cover_path")
@@ -76,6 +139,13 @@ orderForm.addEventListener("submit", async (event) => {
     });
     if (error) throw error;
     currentOrder = data;
+    saveOrder({
+      order_id: data.order_id,
+      token: data.download_token,
+      title: data.product_title,
+      amount_htg: data.amount_htg,
+      created_at: Date.now()
+    });
     document.getElementById("order-summary").textContent = `${data.product_title} — ${formatHTG(data.amount_htg)}. Nimewo kòmann: ${data.order_id}`;
     const message = `Bonjou B.F.A.I, mwen kreye kòmann ${data.order_id} pou ${data.product_title}, montan ${formatHTG(data.amount_htg)}.`;
     document.getElementById("whatsapp-order").href = "https://wa.me/50941319310?text=" + encodeURIComponent(message);
@@ -112,7 +182,7 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
       p_sender_phone: sender || null
     });
     if (error) throw error;
-    messageEl.textContent = "Kòd la resevwa pou verifikasyon manyèl. Sa pa vle di peman an deja konfime. Tanpri kenbe resi NatCash la.";
+    messageEl.textContent = "Kòd la resevwa pou verifikasyon manyèl. Sa pa vle di peman an deja konfime. Kenbe resi NatCash la. Apre ekip nou valide peman an, retounen sou paj sa a nan seksyon « Kòmann mwen yo » pou telechaje PDF la.";
     const message = `Bonjou B.F.A.I, mwen soumèt kòd NatCash ${code} pou kòmann ${currentOrder.order_id}. Montan: ${formatHTG(currentOrder.amount_htg)}. Tanpri verifye li.`;
     document.getElementById("whatsapp-order").href = "https://wa.me/50941319310?text=" + encodeURIComponent(message);
   } catch (err) {
@@ -122,4 +192,5 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
     button.textContent = "Soumèt pou verifikasyon";
   }
 });
+renderMyOrders();
 loadProducts();
