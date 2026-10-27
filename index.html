@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ht">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14532d">
+  <title>B.F.A.I — Bèl feyton an imaj</title>
+  <meta name="description" content="Dekouvri epi achte bèl feyton an imaj sou B.F.A.I.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="B.F.A.I Akèy">
+      <span class="brand-mark">🐛</span>
+      <span><strong>B.F.A.I</strong><small>Bèl feyton an imaj</small></span>
+    </a>
+    <a class="whatsapp" href="https://wa.me/50941319310" target="_blank" rel="noopener">WhatsApp</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">BYENVINI SOU B.F.A.I</span>
+        <h1>Bèl istwa pou li,<br><em>bèl imaj pou dekouvri.</em></h1>
+        <p>Chwazi feyton ou renmen an, voye peman NatCash ou, epi ekip nou an ap verifye tranzaksyon an anvan livrezon PDF la.</p>
+        <a class="primary-link" href="#catalogue">Gade katalòg la ↓</a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-circle"></div><div class="book">📚</div><div class="spark s1">✦</div><div class="spark s2">✧</div>
+        <div class="art-label">Istwa • Imaj • Emosyon</div>
+      </div>
+    </section>
+
+    <section id="catalogue" class="section">
+      <div class="section-heading">
+        <div><span class="eyebrow">KOLEKSYON NOU AN</span><h2>Katalòg feyton yo</h2></div>
+        <p>Pri yo an goud ayisyen (HTG).</p>
+      </div>
+      <div id="status" class="notice">N ap chaje katalòg la…</div>
+      <div id="products" class="product-grid"></div>
+    </section>
+
+    <section class="steps">
+      <div><span>01</span><h3>Chwazi feyton an</h3><p>Gade tit la, deskripsyon an ak pri a.</p></div>
+      <div><span>02</span><h3>Peye ak NatCash</h3><p>Swiv enstriksyon ekip B.F.A.I ba ou.</p></div>
+      <div><span>03</span><h3>Nou verifye</h3><p>Nou konfime peman an avan nou bay aksè ak PDF la.</p></div>
+    </section>
+
+    <section class="support">
+      <div><span class="eyebrow">BEZWEN ÈD?</span><h2>Nou la pou ede w.</h2><p>Kontakte ekip B.F.A.I sou WhatsApp pou kesyon sou kòmann oswa peman.</p></div>
+      <a class="primary-link" href="https://wa.me/50941319310" target="_blank" rel="noopener">Ekri nou sou WhatsApp</a>
+    </section>
+  </main>
+
+  <footer><strong>B.F.A.I</strong><span>Bèl feyton an imaj</span><small>© <span id="year"></span> B.F.A.I</small></footer>
+
+  <dialog id="order-dialog">
+    <form id="order-form" class="dialog-content">
+      <button type="button" class="close" id="close-dialog" aria-label="Fèmen">×</button>
+      <span class="eyebrow">KÒMANDE</span><h2 id="selected-title">Feyton an</h2>
+      <p id="selected-price" class="price"></p>
+      <label for="customer-name">Non ou (opsyonèl)</label>
+      <input id="customer-name" name="customer-name" maxlength="120" autocomplete="name">
+      <label for="customer-phone">Nimewo WhatsApp ou</label>
+      <input id="customer-phone" name="customer-phone" required minlength="8" maxlength="32" autocomplete="tel" placeholder="+509 …">
+      <button class="primary-button" type="submit">Kreye kòmann</button>
+      <p id="order-message" class="form-message" role="status"></p>
+    </form>
+    <div id="payment-panel" class="dialog-content hidden">
+      <button type="button" class="close" id="close-payment" aria-label="Fèmen">×</button>
+      <span class="eyebrow">KÒMANN KREYE</span><h2>Fè peman an</h2>
+      <p id="order-summary"></p>
+      <div class="payment-instructions">
+        <strong>NatCash</strong>
+        <p>Voye montan egzak la bay nimewo NatCash B.F.A.I:</p>
+        <div class="payment-number">+509 4131 9310</div>
+        <small>Pa voye lajan an de fwa. Kenbe resi a. Kòd tranzaksyon an ap verifye manyèlman.</small>
+      </div>
+      <label for="transaction-code">Kòd tranzaksyon NatCash</label>
+      <input id="transaction-code" maxlength="128" minlength="3" required placeholder="Antre kòd ki sou resi a">
+      <label for="sender-phone">Nimewo moun ki voye lajan an (opsyonèl)</label>
+      <input id="sender-phone" maxlength="32" placeholder="+509 …">
+      <button class="primary-button" id="submit-payment" type="button">Soumèt pou verifikasyon</button>
+      <p id="payment-message" class="form-message" role="status"></p>
+      <a id="whatsapp-order" class="secondary-link" href="https://wa.me/50941319310" target="_blank" rel="noopener">Voye detay yo sou WhatsApp</a>
+    </div>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
