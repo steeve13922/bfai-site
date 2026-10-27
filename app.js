@@ -51,7 +51,8 @@ function renderMyOrders() {
   for (const o of orders) {
     const card = document.createElement("article");
     card.className = "product-card";
-    card.innerHTML = `<div class="product-info"><h3>${safeText(o.title)}</h3><p>${formatHTG(o.amount_htg)}<br><small>Kòmann: ${safeText(o.order_id)}</small></p><div class="product-bottom"><button class="buy-button" type="button">Telechaje PDF</button></div></div>`;
+    const amount = o.amount_htg ? formatHTG(o.amount_htg) + "<br>" : "";
+    card.innerHTML = `<div class="product-info"><h3>${safeText(o.title)}</h3><p>${amount}<small>Kòmann: ${safeText(o.order_id)}</small></p><div class="product-bottom"><button class="buy-button" type="button">Telechaje PDF</button></div></div>`;
     card.querySelector("button").addEventListener("click", (e) => downloadOrder(o, e.currentTarget));
     ordersListEl.appendChild(card);
   }
@@ -68,7 +69,7 @@ async function downloadOrder(order, button) {
     if (error) {
       const status = error?.context?.status;
       if (status === 403) throw new Error("Peman an poko verifye. Tanpri tann ekip B.F.A.I konfime li, epi eseye ankò.");
-      if (status === 404) throw new Error("PDF la poko disponib oswa kòmann nan pa jwenn. Kontakte nou sou WhatsApp.");
+      if (status === 404) throw new Error("PDF la poko disponib oswa lyen an pa bon ankò. Kontakte nou sou WhatsApp.");
       throw new Error("Nou pa t kapab prepare telechajman an. Eseye ankò pita.");
     }
     if (!data?.download_url) throw new Error("Lyen telechajman an pa disponib. Eseye ankò.");
@@ -79,6 +80,19 @@ async function downloadOrder(order, button) {
     button.disabled = false;
     button.textContent = label;
   }
+}
+// Lien de récupération envoyé par l'admin : https://site/#dl=<order_id>.<token>&t=<titre>
+function handleDownloadLink() {
+  const raw = location.hash.replace(/^#/, "");
+  if (!raw.includes("dl=")) return;
+  const params = new URLSearchParams(raw);
+  const [orderId, token] = (params.get("dl") || "").split(".");
+  if (!/^[0-9a-f-]{36}$/i.test(orderId || "") || !/^[0-9a-f]{64}$/i.test(token || "")) return;
+  const title = (params.get("t") || "").slice(0, 160) || "Feyton mwen an";
+  saveOrder({ order_id: orderId, token, title, amount_htg: null, created_at: Date.now() });
+  history.replaceState(null, "", location.pathname + location.search);
+  ordersMessageEl.textContent = "Kòmann ou an ajoute. Klike sou « Telechaje PDF » pou rekipere fichye a.";
+  myOrdersSection.scrollIntoView({ behavior: "smooth" });
 }
 
 async function loadProducts() {
@@ -193,4 +207,5 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
   }
 });
 renderMyOrders();
+handleDownloadLink();
 loadProducts();
