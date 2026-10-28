@@ -21,8 +21,8 @@
     </section>
 
     <section id="adminPanel" hidden>
-      <div class="welcome"><div><h1>Jesyon B.F.A.I</h1><p>Jere pwodwi, fichye PDF ak verifikasyon NatCash.</p></div><button id="logoutBtn" class="secondary">Dekonekte</button></div>
-      <nav class="tabs"><button data-tab="products" class="active">Pwodwi</button><button data-tab="payments">Peman NatCash</button><button data-tab="orders">Kòmann peye</button></nav>
+      <div class="welcome"><div><h1>Jesyon B.F.A.I</h1><p>Jere pwodwi, fichye PDF ak verifikasyon MonCash.</p></div><button id="logoutBtn" class="secondary">Dekonekte</button></div>
+      <nav class="tabs"><button data-tab="products" class="active">Pwodwi</button><button data-tab="payments">Peman MonCash</button><button data-tab="orders">Kòmann peye</button></nav>
       <section id="productsTab" class="panel">
         <h2>Ajoute oswa modifye yon pwodwi</h2>
         <form id="productForm" class="formgrid">
@@ -42,10 +42,10 @@
       </section>
       <section id="paymentsTab" class="panel" hidden>
         <h2>Peman ki soumèt</h2>
-        <p>Verifye resi NatCash la dirèkteman anvan ou valide. Pa valide yon peman sèlman paske kliyan an bay yon kòd.</p>
+        <p>Verifye SMS MonCash la dirèkteman anvan ou valide. Pa valide yon peman sèlman paske kliyan an bay yon Txn ID.</p>
         <button id="refreshPayments" class="secondary">Rafrechi lis la</button>
         <p id="paymentMsg" class="msg" role="status"></p>
-        <div class="tablewrap"><table><thead><tr><th>Dat</th><th>Kòd tranzaksyon</th><th>Montan</th><th>Telefòn kliyan</th><th>Commande</th><th>Aksyon</th></tr></thead><tbody id="paymentsRows"><tr><td colspan="6">Ap chaje…</td></tr></tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>Dat</th><th>Txn ID</th><th>Montan</th><th>Telefòn kliyan</th><th>Commande</th><th>Aksyon</th></tr></thead><tbody id="paymentsRows"><tr><td colspan="6">Ap chaje…</td></tr></tbody></table></div>
       </section>
       <section id="ordersTab" class="panel" hidden>
         <h2>Kòmann ki peye</h2>

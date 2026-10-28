@@ -183,13 +183,13 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
   const code = document.getElementById("transaction-code").value.trim();
   const sender = document.getElementById("sender-phone").value.trim();
   if (code.length < 3) {
-    messageEl.textContent = "Antre kòd tranzaksyon an jan li parèt sou resi a.";
+    messageEl.textContent = "Antre Txn ID a jan li parèt sou SMS MonCash la.";
     return;
   }
   button.disabled = true;
   button.textContent = "Ap soumèt…";
   try {
-    const { data, error } = await db.rpc("bfai_submit_natcash_payment", {
+    const { data, error } = await db.rpc("bfai_submit_moncash_payment", {
       p_order_id: currentOrder.order_id,
       p_transaction_code: code,
       p_amount_htg: currentOrder.amount_htg,
@@ -201,9 +201,9 @@ document.getElementById("submit-payment").addEventListener("click", async () => 
     } else if (data?.status === "amount_mismatch") {
       messageEl.textContent = "SMS la jwenn, men montan li pa koresponn ak kòmann nan. Pa soumèt yon lòt fwa; kontakte B.F.A.I sou WhatsApp.";
     } else {
-      messageEl.textContent = "Kòd la resevwa. Sistèm nan ap tann SMS NatCash la pou verifye kòd la ak montan an. Kenbe resi a; pa peye yon dezyèm fwa.";
+      messageEl.textContent = "Txn ID a resevwa. Sistèm nan ap tann SMS MonCash la pou verifye Txn ID a ak montan an. Kenbe SMS la; pa peye yon dezèm fwa.";
     }
-    const message = `Bonjou B.F.A.I, mwen soumèt kòd NatCash ${code} pou kòmann ${currentOrder.order_id}. Montan: ${formatHTG(currentOrder.amount_htg)}. Tanpri verifye li.`;
+    const message = `Bonjou B.F.A.I, mwen soumèt Txn ID MonCash ${code} pou kòmann ${currentOrder.order_id}. Montan: ${formatHTG(currentOrder.amount_htg)}. Tanpri verifye li.`;
     document.getElementById("whatsapp-order").href = "https://wa.me/50941319310?text=" + encodeURIComponent(message);
   } catch (err) {
     messageEl.textContent = err?.message || "Nou pa t kapab soumèt kòd la. Tanpri kontakte nou sou WhatsApp.";

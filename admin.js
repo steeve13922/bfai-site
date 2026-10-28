@@ -31,7 +31,7 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
 });
 function resetForm(){ $("productForm").reset();$("productId").value="";say("productMsg","");}
 $("resetBtn").onclick=resetForm;
-function safeSlug(s){return s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+function safeSlug(s){return s.toLowerCase().trim().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 $("title").addEventListener("input",()=>{if(!$("productId").value && !$("slug").dataset.edited)$("slug").value=safeSlug($("title").value)});
 $("slug").addEventListener("input",()=>{$("slug").dataset.edited="1"});
 async function uploadFile(file,bucket,path){
@@ -71,7 +71,7 @@ $("productForm").addEventListener("submit",async e=>{
 });
 async function loadPayments(){
  const body=$("paymentsRows");body.innerHTML='<tr><td colspan="6">Ap chaje…</td></tr>';
- const {data,error}=await db.from("natcash_payments").select("id,order_id,transaction_code,amount_htg,sender_phone,status,created_at,orders(customer_name,customer_whatsapp,status)").order("created_at",{ascending:false}).limit(100);
+ const {data,error}=await db.from("moncash_payments").select("id,order_id,transaction_code,amount_htg,sender_phone,status,created_at,orders(customer_name,customer_whatsapp,status)").order("created_at",{ascending:false}).limit(100);
  if(error){body.innerHTML='<tr><td colspan="6">Pa kapab chaje peman yo.</td></tr>';say("paymentMsg",error.message,true);return}
  const pending=(data||[]).filter(p=>p.status==="submitted");
  if(!pending.length){body.innerHTML='<tr><td colspan="6">Pa gen peman k ap tann verifikasyon.</td></tr>';return}
@@ -80,7 +80,7 @@ async function loadPayments(){
  body.querySelectorAll("[data-reject]").forEach(b=>b.onclick=()=>reviewPayment(b.dataset.reject,"rejected"));
 }
 async function reviewPayment(id,decision){
- const msg=decision==="verified"?"Konfime ou verifye tranzaksyon NatCash sa a epi montan an kòrèk?":"Konfime ou vle refize peman sa a?";
+ const msg=decision==="verified"?"Konfime ou verifye tranzaksyon MonCash sa a epi montan an kòrèk?":"Konfime ou vle refize peman sa a?";
  if(!confirm(msg))return;say("paymentMsg","Ap trete peman an…");
  const {error}=await db.rpc("bfai_admin_review_payment",{p_payment_id:id,p_decision:decision});
  if(error){say("paymentMsg",error.message,true);return}
